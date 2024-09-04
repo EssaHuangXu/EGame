@@ -2,16 +2,23 @@ using System;
 
 namespace EFramework.Core.Ecs
 {
-    public class EntityKey : IEntityKey, IEquatable<EntityKey>
+    public struct EntityKey : IEquatable<EntityKey>
     {
         private const int GenrationOffset = 24;
 
-        private const int TypeMask = 0xFF_FFFF;
-        public uint Key { get; }
-
+        private const int IDMask = 0xFF_FFFF;
+        
+        public uint Key { get; private set; }
+    
+        /// <summary>
+        ///High 8 bit is Generation, it means entity reuse count
+        /// </summary>
         public byte Generation => (byte)((Key >> GenrationOffset) & 0xFF);
-
-        public uint Type => (uint)(Key & TypeMask) - 1;
+        
+        /// <summary>
+        ///Low 24 bit is Entity Id
+        /// </summary>
+        public uint Id => (uint)(Key & IDMask) - 1;
 
         public bool Valid => Key != 0;
 
@@ -19,22 +26,22 @@ namespace EFramework.Core.Ecs
         /// Entity key make with type and generation
         /// storing a uint key, it height 8 byte is generation and others 24 byte is type.
         /// </summary>
-        /// <param name="type">range [0, 2^24 -1]</param>
+        /// <param name="id">range [0, 2^24 -1]</param>
         /// <param name="generation">range [0, 2^8 - 1]</param>
-        public EntityKey(uint type, byte generation)
+        private EntityKey(uint id, byte generation)
         {
             Key = (uint)generation << GenrationOffset;
             //plus 1 ,make data is not same with default 0
-            Key |= (uint)((type + 1) & TypeMask);
+            Key |= (uint)((id + 1) & IDMask);
+        }
+
+        public void Resign()
+        {
+            Key += (uint)(1 << GenrationOffset);
         }
 
         public bool Equals(EntityKey other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-
             return Key == other.Key;
         }
 
@@ -56,6 +63,16 @@ namespace EFramework.Core.Ecs
         public static bool operator !=(EntityKey lhs, EntityKey rhs)
         {
             return !(lhs!.Equals(rhs));
+        }
+
+        public override string ToString()
+        {
+            return $"Entity Key : {Key}, Id : {Id}, Generation : {Generation}";
+        }
+
+        public static EntityKey Create(uint id)
+        {
+            return new EntityKey(id, 1);
         }
     }
 }

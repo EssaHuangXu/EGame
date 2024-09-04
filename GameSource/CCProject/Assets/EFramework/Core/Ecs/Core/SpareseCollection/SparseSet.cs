@@ -41,17 +41,17 @@ public class SparseSet : ISparseCollection<int>
         _current++;
     }
 
-    public void Remove(int value)
+    public bool Remove(int value)
     {
         if (_current <= 0 || value >= _sparse.Length)
         {
-            throw new ArgumentOutOfRangeException($@"SparseSet doesn`t have a value {value}");
+            throw new KeyNotFoundException($@"SparseSet doesn't have a value {value}");
         }
 
         var mapIndex = _sparse[value];
         if (mapIndex == Invalid)
         {
-            throw new ArgumentOutOfRangeException($@"SparseSet doesn`t have a value {value}");
+            throw new KeyNotFoundException($@"SparseSet doesn't have a value {value}");
         }
         
         var nowValue = _density[_current - 1];
@@ -61,8 +61,16 @@ public class SparseSet : ISparseCollection<int>
         _sparse[value] = Invalid;
         _sparse[nowValue] = mapIndex;
         _current--;
+        return true;
     }
 
+    public int Create()
+    {
+        var id = _current;
+        Add(_current);
+        return id;
+    }
+    
     public void Clear()
     {
         _current = 0;

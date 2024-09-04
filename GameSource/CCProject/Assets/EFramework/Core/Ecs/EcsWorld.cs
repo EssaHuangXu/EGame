@@ -9,8 +9,11 @@ namespace EFramework.Core.Ecs
 
         private readonly EcsWorldSystemProvider<IUpdateSystem> _updateProvider = new();
 
-        public EcsWorld()
+        private IEntityProvider _provider;
+
+        public EcsWorld(IEntityProvider provider)
         {
+            _provider = provider;
         }
 
         public void Destroy()
@@ -27,6 +30,21 @@ namespace EFramework.Core.Ecs
         public void AddUpdateSystem(IUpdateSystem system)
         {
             _updateProvider.Add(system);
+        }
+
+        public EntityKey CreateEntity()
+        {
+            return _provider.CreateEntity();
+        }
+
+        public bool DestroyEntity(EntityKey key)
+        {
+            return _provider.DestroyEntity(key);
+        }
+
+        public bool IsEntityValid(EntityKey key)
+        {
+            return _provider.IsEntityValid(key);
         }
     }
 }

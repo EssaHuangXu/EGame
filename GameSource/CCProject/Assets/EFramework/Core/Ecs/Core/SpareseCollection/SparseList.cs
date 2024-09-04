@@ -73,11 +73,11 @@ namespace EFramework.Core.Ecs
             return id;
         }
 
-        public void Remove(int id)
+        public bool Remove(int id)
         {
             if (TryGetValue(id, out var value) == false)
             {
-                return;
+                return false;
             }
 
             var index = _sparse[id];
@@ -86,6 +86,7 @@ namespace EFramework.Core.Ecs
             _density[index] = _density[_current - 1];
             _sparse[last.Id] = index;
             _current--;
+            return true;
         }
 
         public void Clear()
@@ -108,11 +109,12 @@ namespace EFramework.Core.Ecs
             throw new Exception("Don't call with interface");
         }
 
-        void ISparseCollection<SparseListItem<TValue>>.Remove(SparseListItem<TValue> entry)
+        bool ISparseCollection<SparseListItem<TValue>>.Remove(SparseListItem<TValue> entry)
         {
             _sparse[entry.Id] = _current;
             _density[_current] = entry;
             _current++;
+            return true;
         }
 
         private bool TryGetIndex(int id, out int index)

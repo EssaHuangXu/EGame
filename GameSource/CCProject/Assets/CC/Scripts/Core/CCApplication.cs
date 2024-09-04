@@ -8,11 +8,14 @@ namespace CC.Core
 
         public static CCApplication Instance => _instanceHolder.Value;
 
-        private CCLogic _logic;
+        private readonly CCLogic _logic;
+
+        private CCWorldModule _world;
         
         private CCApplication()
         {
             _logic = new CCLogic();
+            _world = new CCWorldModule();
         }
 
         public void Update(float deltaTime)

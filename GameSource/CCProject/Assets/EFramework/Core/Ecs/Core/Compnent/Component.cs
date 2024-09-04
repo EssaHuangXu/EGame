@@ -1,6 +1,6 @@
 namespace EFramework.Core.Ecs
 {
-    public struct Entity
+    public struct Component
     {
         
     }
